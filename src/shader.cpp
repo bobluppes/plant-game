@@ -37,7 +37,9 @@ namespace {
     }
 }
 
-Shader::Shader() {}
+Shader::Shader(const std::string& vertex_shader_src, const std::string& fragment_shader_src) :
+    vertex_shader_src_(vertex_shader_src),
+    fragment_shader_src_(fragment_shader_src) {}
 
 Shader::~Shader() {
     for (auto shader_id: shaders_) {
@@ -45,17 +47,21 @@ Shader::~Shader() {
     }
 }
 
-unsigned int Shader::createProgram(const std::string& vertex_shader_src, const std::string& fragment_shader_src) {
-    auto vertex_shader_id{load_vertex_shader(vertex_shader_src)};
-    auto fragment_shader_id{load_fragment_shader(fragment_shader_src)};
+void Shader::compile_program() {
+    auto vertex_shader_id{load_vertex_shader(vertex_shader_src_)};
+    auto fragment_shader_id{load_fragment_shader(fragment_shader_src_)};
 
-    auto shader_program_id{glCreateProgram()};
-    glAttachShader(shader_program_id, vertex_shader_id);
-    glAttachShader(shader_program_id, fragment_shader_id);
+    auto program_id{glCreateProgram()};
+    glAttachShader(program_id, vertex_shader_id);
+    glAttachShader(program_id, fragment_shader_id);
 
-    link_shaders(shader_program_id);
+    link_shaders(program_id);
 
-    return shader_program_id;
+    program_id_ = program_id;
+}
+
+void Shader::use() {
+    glUseProgram(program_id_);
 }
 
 unsigned int Shader::load_vertex_shader(const std::string& vertex_shader_src) {
@@ -93,4 +99,15 @@ unsigned int Shader::load_fragment_shader(const std::string& fragment_shader_src
 void Shader::link_shaders(unsigned int program_id) {
     glLinkProgram(program_id);
     check_link_errors(program_id);
+}
+
+void Shader::set_bool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(program_id_, name.c_str()), (int)value);
+}
+
+void Shader::set_int(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(program_id_, name.c_str()), value);
+}
+void Shader::set_float(const std::string &name, float value) const {
+    glUniform1f(glGetUniformLocation(program_id_, name.c_str()), value);
 }

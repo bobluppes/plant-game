@@ -8,5 +8,7 @@ add_subdirectory(glad)
 
 file(GLOB SRC_FILES src/*.h src/*.cpp)
 
+include_directories(includes)
+
 add_executable(plant_game ${SRC_FILES})
 target_link_libraries(plant_game glfw glad)

@@ -5,6 +5,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "shader.h"
+
 class WindowManager {
 public:
 
@@ -12,7 +14,7 @@ public:
 
     bool should_close();
 
-    void process_input();
+    void process_input(Shader& shader, float& val);
 
     void render();
 
