@@ -6,6 +6,8 @@
 #include <sstream>
 #include <cstring>
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace {
     std::string read_file(const std::string& src_file) {
         std::ifstream stream{src_file};
@@ -110,4 +112,8 @@ void Shader::set_int(const std::string &name, int value) const {
 }
 void Shader::set_float(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(program_id_, name.c_str()), value);
+}
+
+void Shader::set_mat4(const std::string& name, const glm::mat4& value) const {
+    glUniformMatrix4fv(glGetUniformLocation(program_id_, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }

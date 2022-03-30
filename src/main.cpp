@@ -5,6 +5,10 @@
 #include "data_manager.h"
 #include "shader.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 const std::string VERTEX_SHADER_SRC{"/home/bluppes/CLionProjects/plant-game/src/shaders/vertex_shader.txt"};
 const std::string FRAGMENT_SHADER_SRC{"/home/bluppes/CLionProjects/plant-game/src/shaders/fragment_shader.txt"};
 
@@ -60,16 +64,26 @@ int main() {
 
         shader.use();
 
-        auto seconds{glfwGetTime()};
-        auto offset{sin(seconds) / 2.0f};
-
-        shader.set_float("x_offset", offset);
-
         glBindVertexArray(vao_id);
+
+        auto trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        shader.set_mat4("transform", trans);
+
 
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        auto trans2 = glm::mat4(1.0f);
+        auto scale_factor{sin((float)glfwGetTime()) + 1};
+        trans2 = glm::scale(trans2, glm::vec3(scale_factor, scale_factor, scale_factor));
+        trans2 = glm::translate(trans2, glm::vec3(-0.5f, 0.5f, 0.0f));
+        shader.set_mat4("transform", trans2);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glBindVertexArray(0);
 
         window_manager.render();
