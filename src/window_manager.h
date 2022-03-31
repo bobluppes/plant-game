@@ -10,11 +10,15 @@
 class WindowManager {
 public:
 
-    explicit WindowManager(std::string title);
+    explicit WindowManager(const std::string& title);
+
+    ~WindowManager();
 
     bool should_close();
 
-    void process_input(Shader& shader, float& val);
+    void process_input(Shader& shader);
+
+    void clear();
 
     void render();
 

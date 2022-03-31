@@ -5,25 +5,27 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-DataManager::DataManager() {}
+DataManager::DataManager() {
+    glGenVertexArrays(1, &VAO_);
+    glBindVertexArray(VAO_);
+}
 
 DataManager::~DataManager() {
+    glDeleteVertexArrays(1, &VAO_);
+
     for (auto buffer: buffers_) {
         glDeleteBuffers(1, &buffer);
     }
+
+    for (auto texture: textures_) {
+        glDeleteTextures(1, &texture);
+    }
 }
 
-unsigned int DataManager::load_data(const float* vertices, std::size_t vertex_size, const unsigned int* indices, std::size_t index_size) {
-    auto vao_id{createVAO()};
-    glBindVertexArray(vao_id);
-
-    auto vbo_id{createVBO()};
+void DataManager::load_vertex_data(const float* vertices, std::size_t vertex_size) {
+    auto vbo_id{create_vbo()};
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, vertex_size, vertices, GL_STATIC_DRAW);
-
-    auto ebo{createVBO()};
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_size, indices, GL_STATIC_DRAW);
 
     // Vertex positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -32,8 +34,12 @@ unsigned int DataManager::load_data(const float* vertices, std::size_t vertex_si
     // Vertex texture coordinates
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
+}
 
-    return vao_id;
+void DataManager::load_element_data(const unsigned int* elements, std::size_t size) {
+    auto vbo_id{create_vbo()};
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, elements, GL_STATIC_DRAW);
 }
 
 void DataManager::load_textures(const std::vector<std::string>& source_files) {
@@ -43,11 +49,17 @@ void DataManager::load_textures(const std::vector<std::string>& source_files) {
 
 }
 
-void DataManager::bind_textures() {
+void DataManager::bind() {
+    glBindVertexArray(VAO_);
+
     for (int i{0}; i < textures_.size(); ++i) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, textures_[i]);
     }
+}
+
+void DataManager::unbind() {
+    glBindVertexArray(0);
 }
 
 unsigned int DataManager::load_texture(const std::string& source_file) {
@@ -85,14 +97,7 @@ unsigned int DataManager::load_texture(const std::string& source_file) {
     return texture_id;
 }
 
-unsigned int DataManager::createVAO() {
-    unsigned int vao_id;
-    glGenVertexArrays(1, &vao_id);
-    buffers_.emplace_back(vao_id);
-    return vao_id;
-}
-
-unsigned int DataManager::createVBO() {
+unsigned int DataManager::create_vbo() {
     unsigned int vbo_id;
     glGenBuffers(1, &vbo_id);
     buffers_.emplace_back(vbo_id);

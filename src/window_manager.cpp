@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-WindowManager::WindowManager(std::string title) {
+WindowManager::WindowManager(const std::string& title) {
 
     // Initialize OpenGL to version 3.3
     glfwInit();
@@ -15,8 +15,8 @@ WindowManager::WindowManager(std::string title) {
 #endif
 
     // Create a new window
-    window_ = glfwCreateWindow(WIDTH, HEIGHT, title.c_str(), NULL, NULL);
-    if (window_ == NULL)
+    window_ = glfwCreateWindow(WIDTH, HEIGHT, title.c_str(), nullptr, nullptr);
+    if (!window_)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -36,21 +36,23 @@ WindowManager::WindowManager(std::string title) {
 
 }
 
+WindowManager::~WindowManager() {
+    glfwTerminate();
+}
+
 bool WindowManager::should_close() {
     return glfwWindowShouldClose(window_);
 }
 
-void WindowManager::process_input(Shader& shader, float& val) {
+void WindowManager::process_input(Shader& shader) {
     if(glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window_, true);
-    } else if (glfwGetKey(window_, GLFW_KEY_UP) == GLFW_PRESS) {
-        val = val + 0.01f;
-        shader.set_float("mix_value", val);
-    } else if (glfwGetKey(window_, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        val = val - 0.01f;
-        shader.set_float("mix_value", val);
     }
+}
 
+void WindowManager::clear() {
+    glClearColor(0.0f, 0.0f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void WindowManager::render() {
