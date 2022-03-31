@@ -20,15 +20,32 @@ public:
 
     void clear();
 
+    void prepare_next_frame(Shader& shader);
+
     void render();
+
+    // TODO: extract to camera object
+    float lastX{WIDTH/2.0f};
+    float lastY{HEIGHT/2.0f};
+
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+
+    float pitch{0.0f};
+    float yaw{-90.0f};
+    float fov_{45.0f};
+
+    bool firstMouse{true};
 
 private:
 
-    void static framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-    constexpr static auto WIDTH{800};
-    constexpr static auto HEIGHT{600};
+    constexpr static auto WIDTH{1920};
+    constexpr static auto HEIGHT{1000};
 
     GLFWwindow* window_;
+
+    float deltaTime = 0.0f;	// Time between current frame and last frame
+    float lastFrame = 0.0f; // Time of last frame
 
 };

@@ -30,19 +30,6 @@ int main() {
     shader.set_int("texture1", 0);
     shader.set_int("texture2", 1);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    shader.set_mat4("model", model);
-
-    glm::mat4 view = glm::mat4(1.0f);
-    // note that we're translating the scene in the reverse direction of where we want to move
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    shader.set_mat4("view", view);
-
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    shader.set_mat4("projection", projection);
-
     glEnable(GL_DEPTH_TEST);
 
     while(!window_manager.should_close())
@@ -55,7 +42,7 @@ int main() {
 
         data_manager.bind();
 
-        shader.use();
+        window_manager.prepare_next_frame(shader);
 
         if constexpr(DEBUG_MODE) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -70,9 +57,9 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        data_manager.unbind();
-
         window_manager.render();
+
+        data_manager.unbind();
     }
 
     return 0;
